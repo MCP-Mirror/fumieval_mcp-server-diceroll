@@ -42,12 +42,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (name) {
     case "roll_dice": {
       const { faces, rolls } = DiceRollSchema.parse(args);
-      let result = 0;
+      let result = [];
       for (let i = 0; i < rolls; i++) {
-        result += Math.floor(Math.random() * faces) + 1;
+        result.push(Math.floor(Math.random() * faces) + 1);
       }
+      const expr = result.map(r => r.toString()).join(' + ');
+      const total = result.reduce((a, b) => a + b, 0);
       return {
-        content: [{type: 'text', text: result.toString()}],
+        content: [{type: 'text', text: `${expr} = ${total}`}],
       }
     }
     default:
