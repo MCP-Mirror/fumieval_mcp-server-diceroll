@@ -29,11 +29,13 @@ const DiceRollSchema = z.object({
 
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [{
-    name: "roll_dice",
-    description: "Roll a dice",
-    inputSchema: zodToJsonSchema(DiceRollSchema),
-  }],
+  tools: [
+    {
+      name: "roll_dice",
+      description: "Roll a dice",
+      inputSchema: zodToJsonSchema(DiceRollSchema),
+    },
+  ],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -42,15 +44,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (name) {
     case "roll_dice": {
       const { faces, rolls } = DiceRollSchema.parse(args);
-      let result = [];
+      const result = [];
       for (let i = 0; i < rolls; i++) {
         result.push(Math.floor(Math.random() * faces) + 1);
       }
-      const expr = result.map(r => r.toString()).join(' + ');
+      const expr = result.map((r) => r.toString()).join(" + ");
       const total = result.reduce((a, b) => a + b, 0);
+      const text =
+        result.length === 1 ? total.toString() : `${expr} = ${total}`;
       return {
-        content: [{type: 'text', text: `${expr} = ${total}`}],
-      }
+        content: [{ type: "text", text }],
+      };
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
